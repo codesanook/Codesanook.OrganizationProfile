@@ -1,0 +1,48 @@
+@using System.Reflection
+@using OrchardCore.Environment.Shell.Scope
+@using OrchardCore.ResourceManagement;
+@using Microsoft.Extensions.DependencyInjection;
+@model ShapeViewModel<SocialNetworkPart>
+
+@* @{
+  var resourceManager = ShellScope.Services.GetRequiredService<IResourceManager>();
+  resourceManager
+  .RegisterResource("style", "codesanook-organization-profile")
+  .AtHead()
+  .ShouldAppendVersion(true);
+}
+ *@
+
+@functions
+{
+  IReadOnlyCollection<(string Name, string Url)> GetSocialNetworks()
+  {
+    var type = typeof(SocialNetworkPart);
+    var socialNetworkPart = Model.Value;
+    var propertiesWithoutInheritedClass = type.GetProperties(
+    BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly
+    );
+
+    // Get only not-null properties with Reflection
+    var socialNetworks =
+    from p in propertiesWithoutInheritedClass
+    where !string.IsNullOrWhiteSpace(p.GetValue(socialNetworkPart) as string)
+    select (Name: p.Name, Url: p.GetValue(socialNetworkPart).ToString());
+
+    return socialNetworks.ToArray();
+  }
+}
+
+@if (Model.Value.ShowSocialNetwork)
+{
+  <ul class="social-network-list">
+  @foreach (var socialNetwork in GetSocialNetworks())
+    {
+      <li class="item">
+        <a target="_blank" href="@socialNetwork.Url" class="social-network-link">
+          <i class="fab fa-@socialNetwork.Name.ToLower()"></i> @socialNetwork.Name
+        </a>
+      </li>
+    }
+  </ul>
+}

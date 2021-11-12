@@ -1,0 +1,11 @@
+@using OrchardCore.Mvc.Utilities;
+@{
+  var contentTypeClassName = ((string)Model.ContentItem.ContentType).HtmlClassify();
+}
+
+<div class="@contentTypeClassName-content content-item -detail">
+  <div class="header">CONTACT US</div>
+  <div class="contact-detail -row-wrap">
+    @await DisplayAsync(Model.Content)
+  </div>
+</div>
